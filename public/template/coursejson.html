@@ -1,0 +1,12 @@
+<form id="fileform" action="/admin/course/import" method="post" enctype="multipart/form-data">
+    <p><input type="file" name="coursejson"></p>
+    <p><input type="submit"></p>
+</form>
+<script src="/vendor/jquery/jquery.min.js"></script>
+<script>
+    $("#fileform").on("submit",function(){
+        if(!confirm("请确定上传，上传文件即将重置数据库")){
+            return false;
+        }
+    })
+</script>

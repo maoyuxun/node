@@ -1,0 +1,82 @@
+#youbian {
+    width:800px;
+    height:800px;
+    position: fixed;
+    top:100px;
+    left:300px;
+}
+#youbian ul {
+
+}
+#youbian ul li {
+    float: left;
+    margin-left: 20px;
+}
+#youbian ul li:hover {
+    cursor: pointer;
+}
+
+#youbian ul li .active {
+    color: red;
+    font-weight: 700;
+}
+.wenjian {
+    position: relative;
+    left:40px;
+    top:30px;
+
+}
+#qingdan {
+    margin-top:20px;
+    width:1400px;
+    height:700px;
+    background-color: aquamarine;
+}
+#info_tip {
+    position: fixed;
+    top:100px;
+    left:50%;
+}
+.top-top {
+    width:1400px;
+}
+.top-top #keyword {
+    margin-left: 100px;
+    width: 200px;
+}
+
+#load {
+    float: right;
+    border-radius: 5px;
+}
+.add {
+    border: 1px solid blueviolet;
+    margin-top:50px;
+    width:1400px;
+    height:750px;
+    margin-left: 20px;
+
+}
+.add .in {
+    margin-top:50px;
+    margin-left: 20px;
+}
+.add input {
+    width:400px;
+
+}
+.add #btn {
+    width:80px;
+    margin-left: 100px;
+}
+.alert {
+    margin-left: 20px;
+
+}
+.ui-jqgrid tr.ui-row-ltr td {
+    height:35px;!important;
+    font-size: 16px;
+}
+.add .nianji {
+    width:30px;
+}

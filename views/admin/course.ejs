@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>选修课系统</title>
+
+  <!-- Custom fonts for this template-->
+  <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+
+  <!-- Page level plugin CSS-->
+  <link href="/vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet">
+
+  <!-- Custom styles for this template-->
+  <link href="/css/sb-admin.css" rel="stylesheet">
+
+  <link rel="stylesheet" type="text/css" href="/css/jquery-ui.min.css" />
+  <link rel="stylesheet" type="text/css" href="/css/jquery-ui.theme.min.css" />
+  <link rel="stylesheet" type="text/css" href="/css/ui.jqgrid-bootstrap-ui.css" />
+  <link rel="stylesheet" type="text/css" href="/css/ui.jqgrid.css" />
+  <link rel="stylesheet" href="/css/tip-skyblue/tip-skyblue.css">
+  <link href="/css/my.css" rel="stylesheet">
+
+</head>
+
+<body id="page-top">
+
+<% include include/header.ejs%>
+<% include include/sidebar.ejs%>
+<div id="youbian">
+  <div class="top-top">
+    <ul>
+      <li><a href="/admin/course" class="active">课程清单</a></li>
+      <li><a href="/admin/course/import">导入课程</a></li>
+      <li><a href="/admin/course/add">增加课程</a></li>
+    </ul>
+    <input type="text" placeholder="快捷查询" id="keyword">
+    <a href="/admin/course/download" id="load" class="btn btn-success">下载EXCEL全表</a>
+  </div>
+  <a id="info_tip" class="info_tip" href="#"></a>
+
+
+  <div id="qingdan">
+    <table id="list"></table>
+    <div id="listnav"></div>
+    <input type="button" value="删除" id="delbtn"/>
+  </div>
+</div>
+  <!-- Bootstrap core JavaScript-->
+  <script src="/vendor/jquery/jquery.min.js"></script>
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/grid.locale-cn.js" type="text/javascript" charset="utf-8"></script>
+  <script src="/js/jquery.jqGrid.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/js/jquery.poshytip.min.js"></script>
+<script type="text/javascript">
+  var lastsel3;
+  //初始化表格
+  $("#list").jqGrid({
+    //使用的数据是本地数据，实际上也是Ajax请求回来的
+    datatype: "json",
+    url : "/course",
+    //列明
+    colNames:["编号","课程名称","上课时间","可报人数","允许年级","教师","简介"],
+    //列的模型
+    colModel:[
+      {name:'cid'   , index:'cid'    , width:30 , key : true , editable : true},
+      //editable表示可以被编辑
+      {name:'name'  , index:'name'   , width:50 , editable : true},
+      {name:'dayofweek'  , index:'dayofweek'   , width:30 , editable : true, edittype : "select",editoptions : {value : "周二:周二;周三:周三;周五:周五"}},
+      {name:'number'  , index:'number'   , width:30 , editable : true},
+      {name:'allow'  , index:'allow'   , width:70 , editable : true},
+      {name:'teacher'  , index:'teacher'   , width:50 , editable : true},
+      {name:'briefintro'  , index:'briefintro'   , width:100 , editable : true}
+    ],
+    rowNum:5,
+    rowList:[5,10,20],
+    sortname: 'cid',
+    viewrecords: true,
+    width:1400,
+    pager : '#listnav',
+    height:700,
+    multiselect:true,
+    multiboxonly:true,
+    ondblClickRow : function(id) {
+      if (id && id !== lastsel3) {
+        $('#list').jqGrid('restoreRow', lastsel3);
+        //开始编辑第id这个行，同时执行allowChoose函数。
+        $('#list').jqGrid('editRow',id, true, allowChoose);
+        lastsel3 = id;
+      }
+    }
+
+  });
+
+  function showtip(content){
+    $('#info_tip').poshytip({
+      className: 'tip-skyblue',
+      content: content,
+      showOn: 'none',
+      alignTo: 'target',
+      alignX: 'inner-left',
+      offsetX: 0,
+      offsetY: 5
+    });
+    $('#info_tip').poshytip("show").poshytip('hideDelayed', 800);
+  }
+
+  $("#keyword").bind("input",function(){
+    var keyword = $("#keyword").val();
+    $("#list").jqGrid("clearGridData").jqGrid('setGridParam',{
+      datatype:'json',
+      postData:{'keyword':keyword}, //发送数据
+      page:1
+    }).trigger("reloadGrid"); //重新载入
+  });
+
+
+
+  $("#delbtn").click(function() {
+    if(!confirm("确定删除？？？")){
+      return
+      }
+
+    var arr = $("#list").jqGrid('getGridParam', 'selarrrow');
+    $.ajax({
+      "url":"/course",
+      "type":"delete",
+      traditional:true,
+      "data":{"arr":arr},
+      "success":function(data){
+        if(data.result==-1){
+          showtip("删除失败");
+          return;
+        }else if(data.result==1){
+          showtip("删除成功");
+          $("#list").trigger("reloadGrid");
+        }
+
+      }
+    })
+
+  });
+
+
+  function allowChoose(id){
+    $("#" + id + "_allow").hide();
+    //利用jQuery创建6个复选框，文本框的id是id + "_allow"
+    $("#" + id + "_allow").after("<label><input type='checkbox' value='初一'/>初一</label><label><input type='checkbox' value='初二'/>初二</label> <label><input type='checkbox' value='初三'/>初三</label><label> <input type='checkbox' value='高一'/>高一</label><label><input type='checkbox' value='高二'/>高二</label><label><input type='checkbox' value='高三'/>高三</label> ");
+
+
+    //遍历现有数据，已经在文本框里面了
+    var dataarr = $("#" + id + "_allow").val().split(",");
+
+    // //遍历数组，决定初始的勾选情况
+    $.each(dataarr,function(index,value){
+      $("input[value=" + value + "]").attr("checked",true)
+    });
+
+
+    // //监听所有复选框
+    $("#" + id + "_allow").nextAll().change(function(){
+      var jieguo = [];
+
+      //让选中的复选框的值进入数组
+      $("#" + id + "_allow").nextAll().find(":checked").each(function(){
+        jieguo.push($(this).val());
+      });
+
+      //写入文本框
+      $("#" + id + "_allow").val(jieguo.join(","));
+    });
+  }
+
+</script>
+</body>
+
+</html>

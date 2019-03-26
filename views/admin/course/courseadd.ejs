@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>选修课系统</title>
+
+  <!-- Custom fonts for this template-->
+  <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+
+  <!-- Page level plugin CSS-->
+  <link href="/vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/tip-skyblue/tip-skyblue.css">
+
+
+    <!-- Custom styles for this template-->
+  <link href="/css/sb-admin.css" rel="stylesheet">
+  <link href="/css/my.css" rel="stylesheet">
+
+</head>
+
+<body id="page-top">
+<% include ../include/header.ejs%>
+<% include ../include/sidebar.ejs%>
+<div id="youbian">
+    <section>
+        <ul>
+            <li><a href="/admin/course">课程清单</a></li>
+            <li><a href="/admin/course/import">导入课程</a></li>
+            <li><a href="/admin/course/add" class="active">增加课程</a></li>
+        </ul>
+    </section>
+    </br>
+    <div class="add">
+        <a id="info_tip" class="info_tip" href="#"></a>
+        <div class="in">课程编号：
+            <input type="text" id="cidtxt" checkvalid >
+        </div>
+        <div class="in">课程名称：
+            <input type="text" id="nametxt" checkvalid >
+        </div>
+        <div class="in">上课时间：
+            <select id="timetxt" >
+                <option value="周二">周二</option>
+                <option value="周二">周二</option>
+                <option value="周二">周二</option>
+            </select>
+        </div>
+        <div class="in">限制人数：
+            <input type="text" id="numbertxt" checkvalid>
+        </div>
+        <div class="in">允许年级：
+            <label><input  class="nianji" type="checkbox" name="nianji" value="初一">初一</label>
+            <label><input  class="nianji" type="checkbox" name="nianji" value="初二">初二</label>
+            <label><input  class="nianji" type="checkbox" name="nianji" value="初三">初三</label>
+            <label><input  class="nianji"  type="checkbox" name="nianji" value="高一">高一</label>
+            <label><input  class="nianji" type="checkbox" name="nianji" value="高一">高二</label>
+            <label><input  class="nianji" type="checkbox" name="nianji" value="高一">高三</label>
+        </div>
+        <div class="in">任课教师：
+            <input type="text" id="teachertxt" checkvalid>
+        </div>
+        <div class="in">简介：
+            <textarea  rows="4" cols="80" id="jianjie" checkvalid></textarea>
+        </div>
+        <div class="in">
+            <button id="btn" disabled>提交</button>
+        </div>
+
+    </div>
+</div>
+  <!-- Bootstrap core JavaScript-->
+  <script src="/vendor/jquery/jquery.min.js"></script>
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+ <script src="/js/jquery.poshytip.min.js"></script>
+<script>
+
+
+
+    //有罪推定
+    var invalid = {
+        "cid":true,
+        "name":true,
+        "number":true,
+        "teacher":true,
+        "briefintro":true
+    };
+
+    //拓展JQ的功能
+    $.fn.extend({
+        "dangerTip": function(txt){
+            this.after(
+                    $("<span class='alert alert-danger' role='alert'>"+txt+"</span>")
+            );
+        },
+
+        "successTip":function(txt){
+            this.after(
+                    $("<span class='alert alert-success' role='alert'>"+txt+"</span>")
+            );
+        },
+
+        "clearTip":function(){
+            this.nextAll(".alert").remove();
+        }
+    });
+
+
+    $("#cidtxt").blur(function(){
+        var cid = $(this).val();
+        if(!/[\d]$/.test(cid)){
+            invalid.sid=true;
+            $(this).dangerTip("没有用过验证，必须是数字");
+            return;
+        }
+        $this =$(this);
+        $.ajax({
+            "url":"/course/"+cid,
+            "type":"propfind",
+            success:function(data){
+                if(data.result==1){
+                    invalid.cid=true;
+                    $this.dangerTip("已经存在");
+                }else if(data.result==-1){
+                    invalid.cid=true;
+                    $this.dangerTip("服务器错误");
+                }else if(data.result==0){
+                    invalid.cid=false;
+                    $this.successTip("可以使用");
+                }
+            }
+        })
+    });
+
+
+
+    $("#nametxt").blur(function(){
+        //姓名
+        var nameTxt = $(this).val();
+        //验证
+        if(/^[\u4E00-\u9FA5]{2,20}/.test(nameTxt)){
+            //合法，这项没有犯错
+            invalid.name = false;
+            $(this).successTip("合法");
+        }else{
+            //非法
+            invalid.name = true;
+            $(this).dangerTip("没有通过正则验证，必须合法中文！");
+        }
+    });
+
+    $("#numbertxt").blur(function(){
+        var number = $(this).val();
+        if(!/[\d]$/.test(number)){
+            invalid.number=true;
+            $(this).dangerTip("必须是数字");
+            return;
+        }else {
+            invalid.number=false;
+            $(this).successTip("符合规范");
+        }
+    })
+
+
+    $("#teachertxt").blur(function(){
+        //姓名
+        var teacher = $(this).val();
+        //验证
+        if(/^[\u4E00-\u9FA5]{2,5}(?:·[\u4E00-\u9FA5]{2,5})*$/.test(teacher)){
+            //合法，这项没有犯错
+            invalid.teacher = false;
+            $(this).successTip("合法");
+        }else{
+            //非法
+            invalid.teacher= true;
+            $(this).dangerTip("必须合法中文！");
+        }
+    });
+
+
+    $("#jianjie").blur(function(){
+        //姓名
+        var briefintro = $(this).val();
+        //验证
+        if(/^[\u4E00-\u9FA5]{1,500}/.test(briefintro)){
+            //合法，这项没有犯错
+            invalid.briefintro = false;
+            $(this).successTip("合法");
+        }else{
+            //非法
+            invalid.briefintro = true;
+            $(this).dangerTip("请填写内容，须带有中文");
+        }
+    });
+
+
+    $("[checkvalid]").blur(function(){
+        //是不是所有都合法
+        var allValid = true;
+        for(var k in invalid){
+            //如果有某项有错误，invalid对象中值是true，不需要验证的了。
+            if(invalid[k]){
+                allValid = false;
+                break;
+            }
+        }
+        //如果所有人都合法，此时允许提交按钮的点击
+        if(allValid){
+            $("#btn").attr("disabled",false);
+        }else{
+            $("#btn").attr("disabled",true);
+        }
+
+        console.log(invalid)
+    });
+
+    //当聚焦的时候，自己应该去掉tip框
+    $("[checkvalid]").bind("focus",function(){
+        $(this).clearTip();
+    });
+
+
+    //提交按钮
+    $("#btn").click(function(){
+        var cid = $("#cidtxt").val();
+        var name = $("#nametxt").val();
+        var dayofweek = $("#timetxt").val();
+        var number = $("#numbertxt").val();
+        var allow = (function(){
+            var arr =[];
+            $("input[name=nianji]:checked").each(function(){
+                arr.push($(this).val());
+            })
+            return arr;
+        })();
+        var teacher = $("#teachertxt").val();
+        var briefintro = $("#jianjie").val();
+
+
+        $.ajax({
+            "data":{
+                cid:cid,
+                name:name,
+                dayofweek:dayofweek,
+                number:number,
+                allow:allow,
+                teacher:teacher,
+                briefintro:briefintro
+            },
+            "type":"post",
+            "traditional":true,
+            "datatype":"json",
+            "url":"/course",
+            "success":function(data){
+                if(data.result==1){
+                    showtip("成功添加！");
+                    $("input[type=text]").val("");
+                    $("#jianjie").val("");
+                    var invalid = {
+                        "cid":true,
+                        "name":true,
+                        "number":true,
+                        "teacher":true,
+                        "briefintro":true
+                    };
+                }else {
+                    alert("增加失败");
+                }
+            }
+        })
+    });
+
+    function showtip(content){
+        $('#info_tip').poshytip({
+            className: 'tip-skyblue',
+            content: content,
+            showOn: 'none',
+            alignTo: 'target',
+            alignX: 'inner-left',
+            offsetX: 0,
+            offsetY: 5
+        });
+        $('#info_tip').poshytip("show").poshytip('hideDelayed', 800);
+    }
+
+</script>
+
+</body>
+
+</html>

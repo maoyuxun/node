@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>选修课系统</title>
+
+  <!-- Custom fonts for this template-->
+  <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+
+  <!-- Page level plugin CSS-->
+  <link href="/vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet">
+
+  <!-- Custom styles for this template-->
+  <link href="/css/sb-admin.css" rel="stylesheet">
+
+
+
+
+    <link rel="stylesheet" type="text/css" href="/css/jquery-ui.min.css" />
+    <link rel="stylesheet" type="text/css" href="/css/jquery-ui.theme.min.css" />
+    <link rel="stylesheet" type="text/css" href="/css/ui.jqgrid-bootstrap-ui.css" />
+    <link rel="stylesheet" type="text/css" href="/css/ui.jqgrid.css" />
+    <link rel="stylesheet" href="/css/tip-skyblue/tip-skyblue.css">
+    <link href="/css/my.css" rel="stylesheet">
+
+</head>
+
+<body id="page-top">
+<% include include/header.ejs%>
+<% include include/sidebar.ejs%>
+<div id="youbian">
+    <div class="top-top">
+        <ul>
+            <li><a href="/admin/student" class="active">学生清单</a></li>
+            <li><a href="/admin/student/import">导入学生</a></li>
+            <li><a href="/admin/student/add">增加学生</a></li>
+        </ul>
+        <input type="text" placeholder="快捷查询" id="keyword">
+        <a href="/admin/student/download" id="load" class="btn btn-success">下载EXCEL全表</a>
+    </div>
+
+
+    <a id="info_tip" class="info_tip" href="#"></a>
+
+
+    <div id="qingdan">
+        <table id="list"></table>
+        <div id="listnav"></div>
+        <input type="button" value="删除" id="delbtn"/>
+    </div>
+</div>
+  <!-- Bootstrap core JavaScript-->
+  <script src="/vendor/jquery/jquery.min.js"></script>
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/grid.locale-cn.js" type="text/javascript" charset="utf-8"></script>
+  <script src="/js/jquery.jqGrid.min.js" type="text/javascript" charset="utf-8"></script>
+  <script src="/js/jquery.poshytip.min.js"></script>
+<script type="text/javascript">
+
+    //初始化表格
+    $("#list").jqGrid({
+        //使用的数据是本地数据，实际上也是Ajax请求回来的
+        datatype: "json",
+        url : "/student",
+        //列明
+        colNames:["学号","姓名","年级","初始密码"],
+        //列的模型
+        colModel:[
+            {name:'sid'   , index:'sid'    , width:50 , key : true , editable : true},
+            //editable表示可以被编辑
+            {name:'name'  , index:'name'   , width:50 , editable : true},
+            //年级的那个列，编辑的时候显示下拉列表框
+            {
+                name:'grade'   ,
+                index:'grade'  ,
+                width:50      ,
+                editable : true,
+                edittype : "select",
+                editoptions : {
+                    value : "初一:初一;初二:初二;初三:初三;高一:高一;高二:高二;高三:高三"
+                }
+            } ,
+            {name:'password'  , index:'password'   , width:50 , editable : true},
+        ],
+        rowNum:20,
+        rowList:[20,50],
+        sortname: 'sid',
+        viewrecords: true,
+        width:1400,
+        pager : '#listnav',
+        cellEdit : true,
+        cellsubmit : "clientArray",
+        height:700,
+        multiselect:true,
+        afterSaveCell : function(rowid, cellname, value, iRow, iCol){
+            $.post("/student/"+rowid,{
+                "cellname":cellname,
+                "value":value
+            },function(data){
+                if(data.result== -1){
+                    showtip("修改失败")
+                }else if(data.result==1 ){
+                    showtip("修改成功")
+                }
+
+            })
+        }
+
+
+    });
+    function showtip(content){
+        $('#info_tip').poshytip({
+            className: 'tip-skyblue',
+            content: content,
+            showOn: 'none',
+            alignTo: 'target',
+            alignX: 'inner-left',
+            offsetX: 0,
+            offsetY: 5
+        });
+        $('#info_tip').poshytip("show").poshytip('hideDelayed', 800);
+    }
+
+    $("#keyword").bind("input",function(){
+        var keyword = $("#keyword").val();
+        $("#list").jqGrid("clearGridData").jqGrid('setGridParam',{
+            datatype:'json',
+            postData:{'keyword':keyword}, //发送数据
+            page:1
+        }).trigger("reloadGrid"); //重新载入
+    })
+
+
+    $("#delbtn").click(function() {
+        if(!confirm("确定删除？？？")){
+            return
+        }
+
+
+        var arr = $("#list").jqGrid('getGridParam', 'selarrrow');
+
+        $.ajax({
+            "url":"/student",
+            "type":"delete",
+            traditional:true,
+            "data":{"arr":arr},
+            "success":function(data){
+                if(data.result==-1){
+                    showtip("删除失败");
+                    return;
+                }else if(data.result==1){
+                    showtip("删除成功");
+                    $("#list").trigger("reloadGrid");
+                }
+
+            }
+        })
+
+    });
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,25 @@
+ <!-- Sidebar -->
+    <ul class="sidebar navbar-nav">
+        <li class="nav-item  <% if(page=="xuanke"){ %> active <% } %>">
+            <a class="nav-link" href="/admin">
+                <i class="fas fa-fw fa-tachometer-alt"></i>
+                <span>选课状态</span>
+            </a>
+        </li>
+        <li class="nav-item <% if(page=="student"){ %> active <% } %>">
+            <a class="nav-link" href="/admin/student">
+                <i class="fas fa-fw fa-folder"></i>
+                <span>学生管理</span>
+            </a>
+        </li>
+        <li class="nav-item <% if(page=="course"){ %> active <% } %>">
+            <a class="nav-link" href="/admin/course">
+                <i class="fas fa-fw fa-chart-area"></i>
+                <span>课程管理</span></a>
+        </li>
+        <li class="nav-item <% if(page=="baobiao"){ %> active <% } %>">
+            <a class="nav-link" href="/admin/baobiao">
+                <i class="fas fa-fw fa-table"></i>
+                <span>报表</span></a>
+        </li>
+    </ul>

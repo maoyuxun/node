@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>选修课系统</title>
+
+  <!-- Custom fonts for this template-->
+  <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+
+  <!-- Page level plugin CSS-->
+  <link href="/vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet">
+
+  <!-- Custom styles for this template-->
+  <link href="/css/sb-admin.css" rel="stylesheet">
+  <link href="/css/my.css" rel="stylesheet">
+
+</head>
+
+<body id="page-top">
+<% include ../include/header.ejs%>
+<% include ../include/sidebar.ejs%>
+<div id="youbian">
+    <section>
+        <ul>
+            <li><a href="/admin/student">学生清单</a></li>
+            <li><a href="/admin/student/import"  class="active">导入学生</a></li>
+            <li><a href="/admin/student/add">生成初始密码（导出学生）</a></li>
+        </ul>
+        </br>
+        <div class="wenjian">
+            <h4>请上传文件</h4>
+            <h5>格式为：**************</h5>
+           <iframe src="/template/excel.html" frameborder="0">
+           </iframe>
+        </div>
+    </section>
+</div>
+  <!-- Bootstrap core JavaScript-->
+  <script src="/vendor/jquery/jquery.min.js"></script>
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+
+</body>
+
+</html>

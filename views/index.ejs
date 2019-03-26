@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <style>
+        * {
+            margin:0;
+            padding:0;
+        }
+        nav {
+            width:100%;
+            height:60px;
+            background-color: burlywood;
+        }
+        .you {
+            float: right;
+        }
+        span {
+            margin-right: 50px;
+            line-height: 60px;
+            margin-left: 50px;
+        }
+        a {
+            color: black;
+            margin-right: 50px;
+        }
+        .active {
+            color: red;
+        }
+        .btn[disabled]{
+            cursor: not-allowed;
+            pointer-events: auto;
+        }
+
+    </style>
+</head>
+<body>
+<nav>
+    <span>选修课系统</span>
+    <span  class="active">选课系统</span>
+    <span>我的选课</span>
+    <span> <a href="/changepw">修改密码</a></span>
+    <div class="you">
+        <span>欢迎你，   <%= name %>(<%= sid %>)  </span>
+        <a href="/logout">退出登录</a>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row">
+        <table class="table table-bordered">
+            <tr class="success">
+                <th style="width:120px;">课程编号</th>
+                <th style="width:120px;">课程名称</th>
+                <th style="width:120px;">限制人数</th>
+                <th style="width:120px;">允许年级</th>
+                <th style="width:120px;">上课时间</th>
+                <th style="width:120px;">任课教师</th>
+                <th style="width:120px;">课程简介</th>
+                <th style="width:80px;">报名</th>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<script src="/js/jquery-1.11.0.min.js"></script>
+<script>
+    //发出Ajax命令读取接口
+    $.get("/check",function(results){
+        $.get("/course",function(data){
+            $.each(data.rows,function(index,item){
+                var $tr = $("<tr></tr>");
+                $tr.append("<td>" + item.cid +"</td>");
+                $tr.append("<td>" + item.name +"</td>");
+                $tr.append("<td>" + item.dayofweek +"</td>");
+                $tr.append("<td>" + item.allow +"</td>");
+                $tr.append("<td>" + item.number +"</td>");
+                $tr.append("<td>" + item.teacher +"</td>");
+                $tr.append("<td>" + item.briefintro +"</td>");
+                $tr.append("<td><input type='button' class='btn bmbtn'  value='' id='bmbtn" + item.cid + "' data-cid='" + item.cid + "' /></td>");
+                //上树
+                $(".table").append($tr);
+                //更改按钮的形态、样式、文本
+                $("#bmbtn" + item.cid).val(results[item.cid]);
+                if(results[item.cid] == "可以报名"){
+                    $("#bmbtn" + item.cid).addClass("btn-success");
+                }else if(results[item.cid] == "已经报名此课"){
+                    $("#bmbtn" + item.cid).attr("disabled",true).after("<p><a href='#' class='tbbtn'  data-cid=" + item.cid + ">已经报名，点击退报</a></p>")
+                }else{
+                    $("#bmbtn" + item.cid).attr("disabled",true);
+                }
+            });
+        });
+    });
+
+
+    //当你这个元素是动态创建的，需要报名，此时记住有一个事件委托
+    $(".table").delegate(".bmbtn","click",function(){
+        $.post("/baoming",{
+            "cid" : $(this).attr("data-cid")
+        },function(data){
+            if(data.result == 1){
+                alert("报名成功！");
+                //刷新本页
+                window.location.reload();
+            }
+        });
+    });
+
+    //退报名
+    $(".table").delegate(".tbbtn","click",function(){
+        $.post("/tuibao",{
+            "cid" : $(this).attr("data-cid")
+        },function(data){
+            if(data.result == 1){
+                alert("退报成功！");
+                //刷新本页
+                window.location.reload();
+            }
+        });
+    });
+</script>
+</body>
+</html>

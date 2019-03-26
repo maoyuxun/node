@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        * {
+            margin:0;
+            padding:0;
+        }
+        nav {
+            width:100%;
+            height:60px;
+            background-color: burlywood;
+        }
+        .you {
+            float: right;
+        }
+        span {
+            margin-right: 50px;
+            line-height: 60px;
+            margin-left: 50px;
+        }
+        a {
+            color: black;
+            margin-right: 50px;
+        }
+        .active {
+            color: red;
+        }
+        h3 {
+            margin-top: 50px;
+            margin-bottom: 20px;
+            margin-left: 50px;
+        }
+        .pw {
+            width:300px;
+            height:40px;
+        }
+        .changepw {
+            margin-top: 50px;
+            margin-left: 50px;
+        }
+        #btn {
+            width: 80px;
+            height:40px;
+        }
+        .jiancha {
+            margin-left: 50px;
+            color: red;
+        }
+        .tishi {
+            display: block;
+            margin-top: 50px;
+            color: red;
+        }
+
+    </style>
+</head>
+<body>
+<nav>
+    <span>选修课系统</span>
+    <span><a href="/">选课系统</a></span>
+    <span>我的选课</span>
+    <span> <a href="/changepassword" class="active">修改密码</a></span>
+    <div class="you">
+        <span>欢迎你，   <%= name %>(<%= sid %>)  </span>
+        <a href="/logout">退出登录</a>
+    </div>
+</nav>
+
+<h3>修改密码</h3>
+
+<hr>
+<% if(nochangepassword==false){%>
+<div class="jiancha">检测到你正在使用初始密码，请修改</div>
+<% } %>
+<div class="changepw">
+新密码：  <input type="password" class="pw" id="pwone"/>
+重复密码：<input type="password" class="pw" id ="pwtwo"/>
+<button id="btn">提交</button>
+    <div class="tishi"></div>
+</div>
+
+
+
+<script src="/js/jquery-1.11.0.min.js"></script>
+<script>
+    $(".tishi").hide();
+    $("#btn").click(function(){
+        var pwone = $("#pwone").val();
+        var pwtwo = $("#pwtwo").val();
+
+        if(pwone !== pwtwo) {
+
+            $(".tishi").show().html("222");
+            return;
+        }
+        $.post("/changepw",{
+            "password":pwone
+        },function(data){
+            if(data.result == 1){
+                alert("修改成功！现在将帮你退出系统，请用新密码登录！");
+                window.location = "/logout";
+            }else{
+                alert("修改失败！请联系管理员！");
+            }
+        })
+
+
+    })
+</script>
+</body>
+</html>
